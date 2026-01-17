@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0" style="background: rgba(255, 255, 255, 0.96);">
+            <div class="card-header bg-success text-white py-4 text-center border-0"
+                 style="background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);">
+                <h3 class="mb-0 fw-bold"><i class="bi bi-box-arrow-in-right me-2"></i> Witaj w TripBudget</h3>
+                <p class="mb-0 opacity-75 small">Zaloguj się, aby kontynuować</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    {{ field|title }}: {{ error }}<br>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label text-muted fw-bold small">LOGIN</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-fill text-success"></i></span>
+                            {{ form.username }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label text-muted fw-bold small">HASŁO</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock-fill text-success"></i></span>
+                            {{ form.password }}
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-green btn-lg shadow-sm">
+                            <i class="bi bi-unlock-fill"></i> ZALOGUJ SIĘ
+                        </button>
+                        <p class="small text-center text-muted mt-3">
+                            Nie masz konta? <a href="{% url 'register' %}" class="text-success fw-bold">Zarejestruj się</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

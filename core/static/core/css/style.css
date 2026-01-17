@@ -1,0 +1,93 @@
+:root {
+    --primary-green: #2E7D32;
+    --vibrant-green: #00C853;
+    --bg-tint: #F1F8E9;
+    --navbar-grad: linear-gradient(90deg, #2E7D32 0%, #43A047 100%);
+}
+
+body { 
+    font-family: 'Poppins', sans-serif;
+    color: #2c3e50;
+    background-color: var(--bg-tint);
+    position: relative;
+    min-height: 100vh;
+}
+
+/*tło - mapa*/
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/World_map_blank_without_borders.svg/2000px-World_map_blank_without_borders.svg.png');
+    background-repeat: no-repeat;
+    background-position: center 100px;
+    background-size: cover;
+
+    filter: sepia(100%) hue-rotate(95deg) saturate(1000%) brightness(30%) contrast(150%);
+    
+    opacity: 0.25; 
+}
+
+.card-bg-icon {
+    position: absolute;
+    right: 15px;
+    bottom: -10px;
+    font-size: 5rem;
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+.navbar {
+    background: var(--navbar-grad) !important;
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+    padding: 15px 0;
+}
+
+.navbar-brand {
+    color: white !important;
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.navbar-text { color: rgba(255, 255, 255, 0.95) !important; font-weight: 500; }
+.navbar .btn-outline-light:hover { color: var(--primary-green); background: white; }
+
+.card { 
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(255,255,255, 0.8);
+    border-radius: 16px; 
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(4px);
+}
+
+.btn-green, .btn-primary, .btn-action {
+    background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-green:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+    color: white;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--vibrant-green);
+    box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.15);
+}
+
+h1, h2, h3, h4, h5 { color: #1a1a1a; font-weight: 700; }
+
+.text-success { color: #1B5E20 !important; }
+.bg-success { background-color: var(--primary-green) !important; }
+
+.expense-row { padding: 15px; border-bottom: 1px solid #f1f1f1; }
+.expense-row:last-child { border-bottom: none; }

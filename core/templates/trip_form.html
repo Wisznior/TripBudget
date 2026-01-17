@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class = "row justify-content-center aligin-items-center" style="min-height: 80vh;">
+    <div class = "col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0" style="background: white;">
+            <div class="card-header bg-success text-white py-4 text-center border-0" style="background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);">    
+                <h3 class="mb-0 fw-bold"><i class="bi bi-airplane-engines-fill me-2"></i>Zaplanuj nową wycieczkę</h3>
+                <p class=""mb-0 opacity-75 small>Wypełnij plan</p>
+            </div>
+            <div class = "card-body p-4 p-md-5">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-bold small">NAZWA WYCIECZKI</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-geo-alt-fill text-success"></i></span>
+                            {{ form.trip_name }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted fw-bold small">PLANOWANY BUDŻET</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-wallet2 text-success"></i></span>
+                            {{ form.trip_budget }}
+                            <span class="input-group-text bg-light fw-bold text-muted">PLN</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="form-label text-muted fw-bold small">DATA STARTU</label>
+                            {{ form.start_date }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted fw-bold small">DATA KOŃCA</label>
+                            {{ form.end_date }}
+                        </div>
+                    </div>
+
+                    <div class = "d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-green btn-lg shadow-sm"><i class = "bi bi-check-lg"></i>UTWÓRZ WYCIECZKĘ</button>
+                        <a href = "{%url 'trip_list' %}" class="btn btn-light text-muted">Anuluj</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'trip_list' %}" class="btn btn-outline-success btn-sm rounded-pill bg-white shadow-sm text-success fw-bold">
+        <i class="bi bi-arrow-left"></i> Wróć
+    </a>
+    
+    <div class="d-flex align-items-center gap-2">
+        {% if not is_owner and trip.is_active %}
+            {% if user_expenses_count == 0 %}
+                <a href="{% url 'leave_trip' trip.pk %}" 
+                   class="btn btn-outline-warning btn-sm rounded-pill bg-white fw-bold shadow-sm me-2" 
+                   onclick="return confirm('Czy na pewno chcesz opuścić tę wycieczkę?')">
+                    <i class="bi bi-box-arrow-right"></i> Opuść wycieczkę
+                </a>
+            {% endif %}
+        {% endif %}
+        
+        {% if is_owner and trip.is_active %}
+            <a href="{% url 'trip_finish' trip.pk %}" 
+               class="btn btn-outline-danger btn-sm rounded-pill bg-white fw-bold shadow-sm me-2" 
+               onclick="return confirm('Czy na pewno zakończyć wycieczkę?')">
+                <i class="bi bi-flag-fill"></i> Zakończ
+            </a>
+        {% endif %}
+        
+        {% if not trip.is_active %}
+            <span class="badge bg-secondary text-white rounded-pill px-3 py-2 shadow-sm">ZAKOŃCZONA</span>
+        {% else %}
+            <span class="badge bg-success text-white rounded-pill px-3 py-2 shadow-sm">AKTYWNA</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="text-center mb-4">
+    <h1 class="display-5 fw-bold text-success" style="text-shadow: 0 2px 4px rgba(0,0,0,0.05);">{{ trip.trip_name }}</h1>
+    <p class="text-dark fw-medium bg-white d-inline-block px-3 py-1 rounded-pill shadow-sm border">
+        <i class="bi bi-calendar-event text-success"></i> {{ trip.start_date|date:"d.m.Y" }} — {{ trip.end_date|date:"d.m.Y" }}
+    </p>
+</div>
+
+<!--statystyki, karty na górze-->
+<div class="row mb-5 g-3">
+    <div class="col-md-4">
+        <div class="card p-3 text-white h-100 position-relative border-0 overflow-hidden" 
+             style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);">
+            
+            <i class="bi bi-wallet2" 
+               style="position: absolute; right: 15px; bottom: -10px; font-size: 5rem; opacity: 0.2; pointer-events: none;">
+            </i>
+            
+            <div style="position: relative; z-index: 1;">
+                <small class="text-uppercase fw-bold opacity-75">Całkowity Budżet</small>
+                <div class="display-6 fw-bold mt-2">{{ trip.trip_budget }} <span class="fs-6">PLN</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card p-3 text-white h-100 position-relative border-0 overflow-hidden" 
+             style="background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%); box-shadow: 0 10px 20px rgba(255, 94, 98, 0.3);">
+            
+            <i class="bi bi-graph-down-arrow" 
+               style="position: absolute; right: 15px; bottom: -10px; font-size: 5rem; opacity: 0.2; pointer-events: none;">
+            </i>
+            
+            <div style="position: relative; z-index: 1;">
+                <small class="text-uppercase fw-bold opacity-75">Wydano łącznie</small>
+                <div class="display-6 fw-bold mt-2">{{ total_spent }} <span class="fs-6">PLN</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 text-white h-100 position-relative border-0 overflow-hidden" 
+             style="background: {% if remaining_budget > 0 %}linear-gradient(135deg, #11998e 0%, #38ef7d 100%){% else %}linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%){% endif %}; 
+             box-shadow: 0 10px 20px rgba(56, 239, 125, 0.3);">
+            
+            <i class="bi bi-piggy-bank" 
+               style="position: absolute; right: 15px; bottom: -10px; font-size: 5rem; opacity: 0.2; pointer-events: none;">
+            </i>
+            
+            <div style="position: relative; z-index: 1;">
+                <small class="text-uppercase fw-bold opacity-75">Do wydania</small>
+                <div class="display-6 fw-bold mt-2">{{ remaining_budget }} <span class="fs-6">PLN</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-success"><i class="bi bi-receipt"></i> Historia wydatków</h5>
+            </div>
+            <div class="card-body p-0 overflow-auto" style="max-height: 600px;" id="expenses-container">
+                <div id="expenses-list">
+                    {% for expense in trip.wydatki.all reversed %}
+                    <div class="expense-row">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <!--ikony kategorii-->
+                                <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm p-2 me-3" 
+                                     style="width: 45px; height: 45px; background-color: #2E7D32; color: white;">
+                                    {% if expense.category == 'food' %}<i class="bi bi-cup-straw fs-5"></i>
+                                    {% elif expense.category == 'transport' %}<i class="bi bi-bus-front fs-5"></i>
+                                    {% elif expense.category == 'accomodation' %}<i class="bi bi-house-door fs-5"></i>
+                                    {% elif expense.category == 'entertainment' %}<i class="bi bi-music-note-beamed fs-5"></i>
+                                    {% else %}<i class="bi bi-bag fs-5"></i>{% endif %}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ expense.description }}</div>
+                                    <small class="text-muted" style="font-size: 0.8rem;">
+                                        <span class="fw-bold text-dark">{{ expense.payer.username }}</span> • {{ expense.get_category_display }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <!--wyświetlanie walut -->
+                                {% if expense.currency == 'PLN' %}
+                                    <div class="fw-bold fs-5" style="color: #c62828;">-{{ expense.amout }} zł</div>
+                                {% else %}
+                                    <div class="fw-bold fs-5" style="color: #c62828;">-{{ expense.amout }} {{ expense.currency }}</div>
+                                    <div class="small text-muted fw-bold">~{{ expense.amount_pln }} PLN</div>
+                                {% endif %}
+                                
+                                {% if is_owner and trip.is_active %}
+                                    <button class="btn p-0 text-muted delete-btn fw-bold opacity-75 mt-1" data-id="{{ expense.id }}" style="font-size: 0.75rem;">
+                                        USUŃ
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5 text-muted" id="no-expenses-msg">
+                        <i class="bi bi-wallet2 fs-1 d-block mb-2"></i>
+                        Brak wydatków. Dodaj pierwszy!
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        
+        <!--dodawanie wydatku-->
+        {% if trip.is_active %}
+        <div class="card mb-4 border-success shadow">
+            <div class="card-header bg-success text-white py-3" style="background: linear-gradient(135deg, #2E7D32 0%, #43A047 100%);">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-plus-circle-fill"></i> Dodaj Wydatek</h5>
+            </div>
+            <div class="card-body p-4">
+                <form id="add-expense-form">
+                    {% csrf_token %}
+                    
+                    <!-- Nazwa -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-bold">NAZWA</label>
+                        <input type="text" name="name" class="form-control" placeholder="np. Pizza" required>
+                    </div>
+
+                    <!--kwota i waluta-->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-muted small fw-bold">KWOTA</label>
+                            <input type="number" name="amount" step="0.01" class="form-control fw-bold text-success" placeholder="0.00" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-muted small fw-bold">WALUTA</label>
+                            <select name="currency" class="form-select fw-bold bg-light">
+                                <option value="PLN" selected>PLN</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="GBP">GBP (£)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!--kategoria -->
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-bold">KATEGORIA</label>
+                        <select name="category" class="form-select">
+                            <option value="food">🍔 Jedzenie</option>
+                            <option value="transport">🚌 Transport</option>
+                            <option value="accomodation">🏠 Nocleg</option>
+                            <option value="entertainment">🎉 Rozrywka</option>
+                            <option value="other">🛍️ Inne</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-green w-100 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-check-lg"></i> DODAJ
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!--rozliczenie kosztow-->
+        {% if settlements %}
+        <div class="card shadow-sm border-0 p-3 mb-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-arrow-left-right text-success"></i> Rozliczenia</h6>
+            
+            <div class="alert alert-success bg-opacity-10 border-success py-2 text-center small mb-3">
+                Średni koszt na osobę: <strong class="text-success">{{ avg_cost }} PLN</strong>
+            </div>
+            
+            <ul class="list-group list-group-flush">
+                {% for s in settlements %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent border-bottom-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger text-white">{{ s.from }}</span>
+                        <i class="bi bi-arrow-right text-muted small"></i>
+                        <span class="badge bg-success text-white">{{ s.to }}</span>
+                    </div>
+                    <span class="fw-bold text-dark">{{ s.amount }} zł</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!--uczestnicy-->
+        <div class="card shadow-sm border-0 p-3">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-people-fill text-success"></i> Ekipa wycieczki</h6>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge bg-success text-white p-2 rounded-pill border border-success">
+                    <i class="bi bi-star-fill"></i> {{ trip.trip_owner.username }}
+                </span>
+                {% for p in trip.participants.all %}
+                    <span class="badge bg-white text-dark border border-secondary p-2 rounded-pill">
+                        <i class="bi bi-person"></i> {{ p.username }}
+                    </span>
+                {% endfor %}
+            </div>
+
+            {% if is_owner and trip.is_active %}
+            <form id="add-participant-form" class="mt-3">
+                <div class="input-group input-group-sm">
+                    <input type="text" name="username" class="form-control border-secondary" placeholder="Login znajomego" required>
+                    <button class="btn btn-outline-success" type="submit">Zaproś</button>
+                </div>
+                <small id="participant-msg" class="text-danger d-block mt-1 fw-bold"></small>
+            </form>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!--wykresy-->
+{% if total_spent > 0 %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h4 class="fw-bold text-success mb-3"><i class="bi bi-pie-chart"></i> Podsumowanie graficzne (PLN)</h4>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card p-4 h-100 shadow-sm border-0">
+            <h6 class="text-center text-muted mb-3 fw-bold">Wydatki wg kategorii</h6>
+            <div style="height: 300px; display: flex; justify-content: center;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card p-4 h-100 shadow-sm border-0">
+            <h6 class="text-center text-muted mb-3 fw-bold">Wydatki wg osób</h6>
+            <div style="height: 300px;">
+                <canvas id="payerChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!--json do wykresów-->
+{{ labels_cat|json_script:"labels-cat-data" }}
+{{ data_cat|json_script:"data-cat-data" }}
+{{ labels_payer|json_script:"labels-payer-data" }}
+{{ data_payer|json_script:"data-payer-data" }}
+
+<!--url dla js-->
+<div id="trip-config" 
+     data-trip-id="{{ trip.pk }}"
+     data-add-url="{% url 'add_expense_api' trip.pk %}"
+     data-add-participant-url="{% url 'add_participant_api' trip.pk %}"
+     style="display: none;">
+</div>
+
+<script src="{% static 'core/js/trip_detail.js' %}"></script>
+
+{% endblock %}
