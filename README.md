@@ -2,6 +2,7 @@
 Aplikacja webowa do zarządzania budżetem grupowych wycieczek. Umożliwia tworzenie wycieczek, dodawanie wydatków w różnych walutach, automatyczne rozliczanie między uczestnikami, wizualizację statystyk.
 
 2. Technologie:
+
 Backend:
 - Django ( python )
 - PostgreSQL ( baza danych )
