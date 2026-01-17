@@ -18,6 +18,7 @@ Architektura:
 - Wzorzec MVC
 
 3. Uruchomienie
+
 a. venv
 python -m venv venv
 
