@@ -53,26 +53,45 @@ http://127.0.0.1:8000
 5. Struktura projektu:
 
 TripBudget/
+
 ├── backend/              # Konfiguracja Django
+
 │   ├── settings.py       # Ustawienia projektu
+
 │   ├── urls.py           # Routing
+
 │   └── wsgi.py
+
 ├── core/                 # Główna aplikacja
+
 │   ├── models.py         # Modele (Trip, Expense)
+
 │   ├── views.py          # Logika biznesowa
+
 │   ├── forms.py          # Formularze
+
 │   ├── templates/        # Szablony HTML
+
 │   │   ├── base.html
+
 │   │   ├── trip_list.html
+
 │   │   ├── trip_detail.html
+
 │   │   └── registration/
+
 │   └── static/core/      # CSS, JS
+
 │       ├── css/style.css
+
 │       └── js/trip_detail.js
+
 ├── manage.py
+
 └── requirements.txt
 
 6. Baza danych
+
 Trip:
 - trip_name
 - trip_budget
